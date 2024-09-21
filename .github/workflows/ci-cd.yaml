@@ -50,7 +50,7 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        kubectl apply -f react-deployment.yaml
-        kubectl apply -f react-service.yaml
-        kubectl apply -f node-deployment.yaml
-        kubectl apply -f node-service.yaml
+        kubectl apply -f kubernetes/react-deployment.yaml
+        kubectl apply -f kubernetes/react-service.yaml
+        kubectl apply -f kubernetes/node-deployment.yaml
+        kubectl apply -f kubernetes/node-service.yaml
