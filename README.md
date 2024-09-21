@@ -30,7 +30,7 @@ Before you begin, ensure you have the following installed:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/vm-management-platform.git
+   git clone https://github.com/cyprianndemo/vmmanager.git
    cd vm-management-platform
    
 
@@ -109,7 +109,7 @@ To deploy the application to a Kubernetes cluster:
    docker build -t vm-management-backend ./backend
    docker build -t vm-management-frontend ./frontend
    docker push your-registry/vm-management-backend
-   docker push your-registry/vm-management-frontend
+   docker push your-registry/vm-management-systemapplication
    ```
 
 2. Apply Kubernetes manifests:
