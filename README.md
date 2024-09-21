@@ -42,7 +42,7 @@ Before you begin, ensure you have the following installed:
 
 3. Install frontend dependencies:
    ```
-   cd ../frontend
+   cd ../systemapplication
    npm install
    ```
 
@@ -107,7 +107,7 @@ To deploy the application to a Kubernetes cluster:
 1. Build and push Docker images:
    ```
    docker build -t vm-management-backend ./backend
-   docker build -t vm-management-frontend ./frontend
+   docker build -t vm-management-frontend ./systemapplication
    docker push your-registry/vm-management-backend
    docker push your-registry/vm-management-systemapplication
    ```
