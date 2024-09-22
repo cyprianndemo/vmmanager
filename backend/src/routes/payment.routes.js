@@ -52,7 +52,6 @@ router.post('/subscribe', auth, async (req, res) => {
   try {
     const { planId, paymentMethod, cardNumber, expiryDate, cvv, phoneNumber, testMode } = req.body;
 
-    // Fetch the selected rate plan
     const ratePlan = await RatePlan.findById(planId);
     if (!ratePlan) {
       return res.status(400).json({ message: 'Invalid rate plan selected' });
@@ -60,10 +59,9 @@ router.post('/subscribe', auth, async (req, res) => {
 
     const amount = ratePlan.price;
 
-    // Simulate payment success in test mode
     let paymentResult;
     if (testMode) {
-      paymentResult = { success: true };  // Payment always succeeds in Test Mode
+      paymentResult = { success: true };  
     } else {
       paymentResult = await processPayment(
         req.user._id, 
@@ -77,9 +75,8 @@ router.post('/subscribe', auth, async (req, res) => {
 
     if (paymentResult.success) {
       const nextBillingDate = new Date();
-      nextBillingDate.setMonth(nextBillingDate.getMonth() + 1); // Add 1 month for next billing
+      nextBillingDate.setMonth(nextBillingDate.getMonth() + 1); 
 
-      // Save the payment information
       const newPayment = new Payment({
         user: req.user._id,
         amount: ratePlan.price,
@@ -91,7 +88,6 @@ router.post('/subscribe', auth, async (req, res) => {
       });
       await newPayment.save();
 
-      // Create a new subscription
       const subscription = new Subscription({
         user: req.user._id,
         plan: ratePlan.name,

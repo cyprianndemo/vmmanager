@@ -20,6 +20,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useEffect } from 'react';
 import GuestHome from './Components/GuestHome';
 import GuestDashboard from './Components/GuestDashboard';
+import Profile from './Components/Profile';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -56,15 +57,14 @@ function App() {
           <Route path="/signup" element={<Register />} />
           <Route path="/subscription" element={<SubscriptionManagement />} />
           <Route path="/" element={<GuestHome />} />
-          <Route path="/guest-dashboard" element={<GuestDashboard />} />
-
-
 
            <Route element={<ProtectedRoute role="Standard" />}>
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/vm" element={<VMManagement />} />
             <Route path="/subscription" element={<SubscriptionManagement />} />
             <Route path="/client" element={<MultiClientManager />} />
+            <Route path="/profile" element={<Profile />} />
+
           </Route>
 
           <Route element={<ProtectedRoute role="Guest" />}>

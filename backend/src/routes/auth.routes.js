@@ -5,10 +5,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
-const passport = require('passport'); // Import passport
+const passport = require('passport'); 
 
 
-// Route to login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -24,7 +23,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT Token
+  
     const token = jwt.sign({ _id: user._id, role: user.role, email}, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     return res.json({ token, role: user.role });
@@ -34,7 +33,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Register route
+
 router.post('/register', async (req, res) => {
   const { username, email, password, role, twoFactorAuth } = req.body;
 
@@ -57,12 +56,10 @@ router.post('/register', async (req, res) => {
       role: role || 'Guest',
     });
 
-    // Handle 2FA
     if (twoFactorAuth) {
       const secret = speakeasy.generateSecret();
-      newUser.twoFactorSecret = secret.base32; // Store the 2FA secret in the database
+      newUser.twoFactorSecret = secret.base32; 
 
-      // Generate QR code for 2FA
       const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
       await newUser.save();
 
@@ -76,7 +73,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Google OAuth callback
+
 router.get('http://localhost:5000/api/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
@@ -85,7 +82,7 @@ router.get('http://localhost:5000/api/auth/google/callback',
   }
 );
 
-// GitHub OAuth callback
+
 router.get('http://localhost:5000/api/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   (req, res) => {

@@ -5,7 +5,6 @@ const ProtectedRoute = ({ role }) => {
   const token = localStorage.getItem('token');
   const userRole = localStorage.getItem('role');
 
-  // Ensure role is defined and valid
   if (!token) {
     return <Navigate to="/login" replace />;
   }

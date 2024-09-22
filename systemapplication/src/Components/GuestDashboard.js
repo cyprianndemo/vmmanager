@@ -24,9 +24,8 @@ const GuestDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       };
 
-      // Fetch guest user subscription details
-      const response = await axios.get('http://localhost:5000/api/subscriptions/subscribe', config);
-      setSubscription(response.data);
+     const response = await axios.get('http://localhost:5000/api/subscriptions/subscribe', config);
+     setSubscription(response.data);
 
       setSnackbar({ open: true, message: 'Data fetched successfully', severity: 'success' });
     } catch (error) {

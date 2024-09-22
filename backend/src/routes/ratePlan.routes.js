@@ -4,7 +4,6 @@ const RatePlan = require('../models/ratePlan.model');
 const auth = require('../middleware/auth.middleware');
 const adminCheck = require('../middleware/adminAuth.middleware');
 
-// Seed data for rate plans
 const seedRatePlans = [
   {
     name: 'Bronze',
@@ -36,7 +35,6 @@ const seedRatePlans = [
   }
 ];
 
-// Function to seed rate plans if none exist
 const seedRatePlansIfEmpty = async () => {
   const count = await RatePlan.countDocuments();
   if (count === 0) {
@@ -49,7 +47,6 @@ const seedRatePlansIfEmpty = async () => {
   }
 };
 
-// Public route to get all rate plans
 router.get('/', async (req, res) => {
   try {
     await seedRatePlansIfEmpty();
@@ -62,7 +59,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Admin routes
 router.post('/', auth, adminCheck, async (req, res) => {
   try {
     const { name, price, maxVMs, maxBackups, description } = req.body;

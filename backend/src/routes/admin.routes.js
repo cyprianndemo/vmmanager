@@ -5,10 +5,8 @@ const adminAuth = require('../middleware/adminAuth.middleware');
 const Payment = require('../models/payment.model');
 const User = require('../models/user.model');
 
-// Middleware to check if the user is an admin
 router.use(auth, adminAuth);
 
-// Get all payments
 router.get('/payments', auth, adminAuth, async (req, res) => {
   try {
     const payments = await Payment.find().populate('user', 'email');
@@ -19,10 +17,9 @@ router.get('/payments', auth, adminAuth, async (req, res) => {
   }
 });
 
-// Get All Users (Admin only)
 router.get('/users', auth, adminAuth, async (req, res) => {
   try {
-    const users = await User.find().select('-password -tokens'); // Exclude sensitive fields
+    const users = await User.find().select('-password -tokens'); 
     res.json(users);
   } catch (err) {
     console.error(err.message);
@@ -31,7 +28,6 @@ router.get('/users', auth, adminAuth, async (req, res) => {
 });
 
 
-// Suspend or reactivate a user
 router.post('/users/:userId/suspend', async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);

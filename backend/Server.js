@@ -48,12 +48,10 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
-// Configure passport
 configurePassport(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vms', auth, vmRoutes);
 app.use('/api/payments', auth, paymentRoutes);
@@ -64,9 +62,7 @@ app.use('/api/rate-plans', ratePlanRoutes);
 app.use('/api/activities', activitiesRouter);
 
 
-//app.use(bodyParser.json());
 
-// Mock database
 let users = [
   { id: 1, name: 'John Doe', email: 'john@example.com', accountStatus: 'active' }
 ];
@@ -81,7 +77,6 @@ let payments = [
   { id: 2, userId: 1, feature: 'Backup Service', amount: 5, date: '2024-09-10' }
 ];
 
-// Get user data
 app.get('/api/user/:id', (req, res) => {
   const user = users.find(u => u.id === parseInt(req.params.id));
   if (user) {
@@ -91,18 +86,15 @@ app.get('/api/user/:id', (req, res) => {
   }
 });
 
-// Get available features
 app.get('/api/features', (req, res) => {
   res.json(features);
 });
 
-// Get user's payment history
 app.get('/api/payments/:userId', (req, res) => {
   const userPayments = payments.filter(p => p.userId === parseInt(req.params.userId));
   res.json(userPayments);
 });
 
-// Process a payment
 app.post('/api/payment', (req, res) => {
   const { userId, featureId } = req.body;
   const user = users.find(u => u.id === userId);
@@ -112,8 +104,6 @@ app.post('/api/payment', (req, res) => {
     return res.status(400).json({ error: 'Invalid user or feature' });
   }
 
-  // In a real scenario, you'd integrate with a payment gateway here
-  // For this mock version, we'll just add the payment to the history
   const newPayment = {
     id: payments.length + 1,
     userId,
@@ -126,12 +116,10 @@ app.post('/api/payment', (req, res) => {
   res.json({ success: true, payment: newPayment });
 });
 
-// Simple admin panel to view all payments
 app.get('/api/admin/payments', (req, res) => {
   res.json(payments);
 });
 
-// Suspend user account
 app.post('/api/admin/suspend/:userId', (req, res) => {
   const user = users.find(u => u.id === parseInt(req.params.userId));
   if (user) {
@@ -149,16 +137,14 @@ app.get('/api/rate-plans', async (req, res) => {
     res.status(500).json({ message: 'Error fetching rate plans', error: error.message });
   }
 });
-//const { handleExpiredSubscriptions } = require('./src/jobs/subscriptionJob');
 
 
-// Mongoose connection setup
 const mongoURI = process.env.MONGO_URI || "mongodb+srv://21s01acs014:oevyJ1z5dLsYG4Tw@cluster0.0akv8.mongodb.net/vm_management?retryWrites=true&w=majority&appName=Cluster0";
 
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+  serverSelectionTimeoutMS: 30000, 
   socketTimeoutMS: 45000
 })
 .then(() => {
@@ -166,14 +152,13 @@ mongoose.connect(mongoURI, {
 })
 .catch((error) => {
   console.error("Error connecting to MongoDB:", error);
-  process.exit(1); // Exit the application with an error code
+  process.exit(1); 
 });
 
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
 
-// Ensure mongoose will close when the application is terminated
 process.on('SIGINT', async () => {
   await mongoose.disconnect();
   console.log("MongoDB connection closed.");

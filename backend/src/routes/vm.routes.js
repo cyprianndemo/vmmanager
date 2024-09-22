@@ -62,7 +62,6 @@ router.get('/:id', auth, async (req, res) => {
   }
 });
 
-// Update a VM (for both admin and users)
 router.patch('/:id', auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ['name', 'status', 'specs', 'owner'];
@@ -78,7 +77,6 @@ router.patch('/:id', auth, async (req, res) => {
       return res.status(404).send();
     }
 
-    // Check if the user is an admin or the owner of the VM
     if (req.user.role !== 'Admin' && vm.owner.toString() !== req.user._id.toString()) {
       return res.status(403).send({ error: 'Access denied' });
     }
@@ -97,23 +95,25 @@ router.patch('/:id', auth, async (req, res) => {
   }
 });
 
-// Delete a VM (for both admin and users)
 router.delete('/:id', auth, async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id);
     if (!vm) {
-      return res.status(404).send();
+      console.log(`VM with id ${req.params.id} not found`);
+      return res.status(404).send({ error: 'VM not found' });
     }
 
-    // Check if the user is an admin or the owner of the VM
     if (req.user.role !== 'Admin' && vm.owner.toString() !== req.user._id.toString()) {
+      console.log(`Access denied for user ${req.user._id} to delete VM ${vm._id}`);
       return res.status(403).send({ error: 'Access denied' });
     }
 
     await vm.remove();
-    res.send(vm);
+    console.log(`VM ${vm._id} successfully deleted`);
+    res.send({ message: 'VM successfully deleted', vm });
   } catch (error) {
-    res.status(500).send();
+    console.error('Error in delete VM route:', error);
+    res.status(500).send({ error: 'Internal server error', details: error.message });
   }
 });
 
@@ -131,10 +131,7 @@ router.post('/:id/start', async (req, res) => {
 
     vm.status = 'Running';
     vm.lastStarted = new Date();
-    await vm.save();
-
-   // await sendNotification(vm.owner, 'VM Started', `Your VM ${vm.name} has been started.`);
-    
+    await vm.save();    
     res.send(vm);
     console.log(req, res);
   } catch (error) {

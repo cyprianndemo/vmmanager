@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, TextField, Container, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Button, TextField, Container, Typography, Box, Snackbar, Alert, CircularProgress, Link } from '@mui/material';
+import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -98,6 +98,14 @@ const Login = () => {
           >
             Login with GitHub
           </Button>
+        </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="body2">
+            Don't have an account?{' '}
+            <Link component={RouterLink} to="/signup" variant="body2">
+              Sign up here
+            </Link>
+          </Typography>
         </Box>
       </Box>
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>

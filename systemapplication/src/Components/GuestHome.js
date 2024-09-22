@@ -34,8 +34,8 @@ const guestFeatures = [
 const plans = [
   { id: 1, name: 'Bronze', maxVMs: 1, maxBackups: 3, price: 9.99 },
   { id: 2, name: 'Silver', maxVMs: 3, maxBackups: 5, price: 19.99 },
-  { id: 3, name: 'Gold', maxVMs: 5, maxBackups: 10, price: 29.99 },
-  { id: 4, name: 'Platinum', maxVMs: 10, maxBackups: 20, price: 49.99 },
+  { id: 3, name: 'Gold', maxVMs: 5, maxBackups: 10, price: 49.99 },
+  { id: 4, name: 'Platinum', maxVMs: 10, maxBackups: 20, price: 99.99 },
 ];
 
 const GuestHome = () => {

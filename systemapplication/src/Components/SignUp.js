@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, TextField, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Container, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Button, TextField, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Container, Typography, Box, Snackbar, Alert, CircularProgress, Link } from '@mui/material';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -11,6 +11,11 @@ const Register = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Redirect to /signup page when the component mounts
+    navigate('/signup');
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -45,6 +50,7 @@ const Register = () => {
       }
       setSnackbar({ open: true, message: response.data.message, severity: 'success' });
 
+      // Redirect to login page after successful registration
       setTimeout(() => navigate('/login', { state: { email: formData.email } }), 2000);
     } catch (error) {
       setSnackbar({ open: true, message: 'Registration failed: ' + (error.response?.data?.message || error.message), severity: 'error' });
@@ -59,7 +65,8 @@ const Register = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       setSnackbar({ open: true, message: 'Registration with Google successful', severity: 'success' });
-      setTimeout(() => navigate('/dashboard'), 2000);
+      // Redirect to login page after successful Google registration
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       setSnackbar({ open: true, message: 'Google registration failed: ' + (error.response?.data?.message || error.message), severity: 'error' });
     }
@@ -68,13 +75,6 @@ const Register = () => {
   const handleGitHubLogin = () => {
     window.location.href = 'http://localhost:5000/api/auth/github';
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
 
   return (
     <Container maxWidth="xs">
@@ -116,6 +116,14 @@ const Register = () => {
           >
             Register with GitHub
           </Button>
+        </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="body2">
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login" variant="body2">
+              Log in here
+            </Link>
+          </Typography>
         </Box>
       </Box>
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
