@@ -44,19 +44,17 @@ jobs:
         push: true
         tags: cpbigfish/systemapplication:latest 
 
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
+    - name: Set up Minikube
+      uses: medyagh/setup-minikube@master
 
-    - name: Configure kubectl
+    - name: Deploy to Minikube
       run: |
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > kubeconfig.yaml
-        kubectl --kubeconfig=./kubeconfig.yaml get nodes
+        minikube kubectl -- apply -f kubernetes/react-deployment.yaml
+        minikube kubectl -- apply -f kubernetes/react-service.yaml
+        minikube kubectl -- apply -f kubernetes/node-deployment.yaml
+        minikube kubectl -- apply -f kubernetes/node-service.yaml
 
-    - name: Deploy to Kubernetes
+    - name: Verify deployment
       run: |
-        kubectl --kubeconfig=./kubeconfig.yaml apply -f kubernetes/react-deployment.yaml
-        kubectl --kubeconfig=./kubeconfig.yaml apply -f kubernetes/react-service.yaml
-        kubectl --kubeconfig=./kubeconfig.yaml apply -f kubernetes/node-deployment.yaml
-        kubectl --kubeconfig=./kubeconfig.yaml apply -f kubernetes/node-service.yaml
+        minikube kubectl -- get pods
+        minikube kubectl -- get services
