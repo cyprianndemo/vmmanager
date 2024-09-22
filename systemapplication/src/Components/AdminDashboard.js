@@ -52,6 +52,8 @@ const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedVM, setSelectedVM] = useState(null);
   const [editUserData, setEditUserData] = useState({ username: '', email: '', role: '' });
+  const [deleteUserData, setDeleteUserData] = useState({ username: '', email: '', role: '' });
+
   const [editVMData, setEditVMData] = useState({ name: '', specs: { cpu: 0, ram: 0, storage: 0 }, owner: '' });
   const [activeTab, setActiveTab] = useState(0);
   const [payments, setPayments] = useState([]);
@@ -98,14 +100,20 @@ const AdminDashboard = () => {
     if (type === "editUser") {
       setSelectedUser(item);
       setEditUserData({ username: item.username, email: item.email, role: item.role });
-    } else if (type === "editVM" || type === "moveVM") {
+    } else if (type === "deleteVM") {
+      setSelectedVM(item);
+      setDeleteUserData({ username: item.username, email: item.email, role: item.role });
+    } 
+    else if (type === "editVM" || type === "moveVM") {
       setSelectedVM(item);
       setEditVMData({ 
         name: item.name, 
         specs: item.specs || { cpu: 0, ram: 0, storage: 0 }, 
         owner: item.owner._id 
       });
-    } else if (type === 'suspendUser') {
+    } 
+    
+    else if (type === 'suspendUser') {
       setSelectedPayment(item);
     } else if (type === 'createVM') {
       setEditVMData({ name: '', specs: { cpu: 1, ram: 1, storage: 10 }, owner: '' });
@@ -196,15 +204,29 @@ const AdminDashboard = () => {
 
   const handleDeleteVM = async () => {
     try {
+      if (!selectedVM || !selectedVM._id) {
+        console.error('No VM selected for deletion');
+        setError('No VM selected for deletion');
+        handleCloseDialog();
+        return;
+      }
+  
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/vms/${selectedVM._id}`, {
+      const response = await axios.delete(`http://localhost:5000/api/vms/${selectedVM._id}`, deleteUserData,{
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchData();
-      handleCloseDialog();
+  
+      if (response.status === 200) {
+        console.log('VM deleted successfully:', response.data);
+        fetchData();
+        handleCloseDialog();
+      } else {
+        console.error('Unexpected response status:', response.status);
+        setError('Failed to delete VM. Unexpected response from server.');
+      }
     } catch (err) {
-      setError('Failed to delete VM. Please try again.');
-      console.error('Error deleting VM:', err);
+      console.error('Error deleting VM:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Failed to delete VM. Please try again.');
     }
   };
 

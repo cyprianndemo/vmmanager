@@ -10,7 +10,6 @@ const router = express.Router();
 
 const vmRoles = ['Admin', 'Standard'];
 
-// Create a new VM (for both admin and users)
 router.post('/', auth, checkPaymentStatus, async (req, res) => {
   try {
     const { name, specs, owner } = req.body;
@@ -45,14 +44,12 @@ router.get('/user', auth, async (req, res) => {
   }
 });
 
-// Get a specific VM by ID
 router.get('/:id', auth, async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id).populate('owner', 'username email');
     if (!vm) {
       return res.status(404).send();
     }
-    // Check if the user is an admin or the owner of the VM
     if (req.user.role !== 'Admin' && vm.owner._id.toString() !== req.user._id.toString()) {
       return res.status(403).send({ error: 'Access denied' });
     }
@@ -95,7 +92,7 @@ router.patch('/:id', auth, async (req, res) => {
   }
 });
 
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id);
     if (!vm) {
@@ -117,7 +114,6 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// Start a VM
 router.post('/:id/start', async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id);
@@ -139,7 +135,6 @@ router.post('/:id/start', async (req, res) => {
   }
 });
 
-// Stop a VM
 router.post('/:id/stop', auth, authorize(vmRoles), async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id);
@@ -147,7 +142,6 @@ router.post('/:id/stop', auth, authorize(vmRoles), async (req, res) => {
       return res.status(404).send();
     }
 
-    // Check if the user is an admin or the owner of the VM
     if (req.user.role !== 'Admin' && vm.owner.toString() !== req.user._id.toString()) {
       return res.status(403).send({ error: 'Access denied' });
     }

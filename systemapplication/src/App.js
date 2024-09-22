@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 import GuestHome from './Components/GuestHome';
 import GuestDashboard from './Components/GuestDashboard';
 import Profile from './Components/Profile';
+import Appbar from './Components/Appbar';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -48,6 +49,8 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="160983245449-fggfj9s37bcl9tbar1iemc8ii00c3muv.apps.googleusercontent.com">
       <BrowserRouter>
+      <Appbar />
+
         <Routes>
        
           <Route path="/home" element={<HomePage />} />
