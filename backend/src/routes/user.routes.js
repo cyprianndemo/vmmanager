@@ -98,30 +98,37 @@ router.get('/', async (req, res) => {
 });
 router.get('/subusers', async (req, res) => {
   try {
-    const users = await User.find();
-    console.log(users);
-    res.json(users);
+    const subusers = await User.find({ parentClient: req.user.id });
+    res.json(subusers);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
   }
 });
 
 // Create a new sub-user
-router.post('/subuser', async (req, res) => {
+router.post('/subusers', auth, async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Please provide username, email, and password.' });
+  }
+
   try {
-    const { email, password, name } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
+      username,
       email,
-      password,
-      name,
-      parentClient: req.user._id
+      password: hashedPassword,
+      parentClient: req.user.id 
     });
+
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });
+
 
 
 module.exports = router;

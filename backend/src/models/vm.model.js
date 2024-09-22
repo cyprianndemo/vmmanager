@@ -1,5 +1,3 @@
-// backend/src/models/vm.model.js
-
 const mongoose = require('mongoose');
 
 const VMSchema = new mongoose.Schema({
@@ -21,15 +19,15 @@ const VMSchema = new mongoose.Schema({
   specs: {
     cpu: {
       type: Number,
-      required: false
+      required: true
     },
     ram: {
       type: Number,
-      required: false
+      required: true
     },
     storage: {
       type: Number,
-      required: false
+      required: true
     }
   },
   createdAt: {
@@ -37,6 +35,12 @@ const VMSchema = new mongoose.Schema({
     default: Date.now
   },
   lastBackup: {
+    type: Date
+  },
+  lastStarted: {
+    type: Date
+  },
+  lastStopped: {
     type: Date
   }
 });

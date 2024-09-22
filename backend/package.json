@@ -36,7 +36,7 @@
     "ms": "^2.1.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.15",
-    "nodemon": "^3.1.4",
+    "nodemon": "^3.1.7",
     "nopt": "^1.0.10",
     "normalize-path": "^3.0.0",
     "packet-reader": "^1.0.0",

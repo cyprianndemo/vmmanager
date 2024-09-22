@@ -19,6 +19,7 @@ import MultiClientManager from './Components/MultiClientManager';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useEffect } from 'react';
 import GuestHome from './Components/GuestHome';
+import GuestDashboard from './Components/GuestDashboard';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -55,6 +56,8 @@ function App() {
           <Route path="/signup" element={<Register />} />
           <Route path="/subscription" element={<SubscriptionManagement />} />
           <Route path="/" element={<GuestHome />} />
+          <Route path="/guest-dashboard" element={<GuestDashboard />} />
+
 
 
            <Route element={<ProtectedRoute role="Standard" />}>
@@ -62,6 +65,11 @@ function App() {
             <Route path="/vm" element={<VMManagement />} />
             <Route path="/subscription" element={<SubscriptionManagement />} />
             <Route path="/client" element={<MultiClientManager />} />
+          </Route>
+
+          <Route element={<ProtectedRoute role="Guest" />}>
+            <Route path="/guest-dashboard" element={<GuestDashboard />} />
+            
           </Route>
 
         

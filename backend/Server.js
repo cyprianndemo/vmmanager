@@ -42,10 +42,10 @@ app.use((req, res, next) => {
 });
 // Configure session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-session-secret', // Replace with a strong secret key
+  secret: process.env.SESSION_SECRET || 'your-session-secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production' } // Set to true if using HTTPS
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
 // Configure passport
@@ -55,7 +55,6 @@ app.use(passport.session());
 
 // Use routes
 app.use('/api/auth', authRoutes);
-//app.use('/api/users', auth, authorize(['Admin']), adminRoutes);
 app.use('/api/vms', auth, vmRoutes);
 app.use('/api/payments', auth, paymentRoutes);
 app.use('/api/dashboard', auth, userDashboardRoutes);
