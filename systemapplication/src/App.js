@@ -22,6 +22,7 @@ import GuestHome from './Components/GuestHome';
 import GuestDashboard from './Components/GuestDashboard';
 import Profile from './Components/Profile';
 import Appbar from './Components/Appbar';
+import OAuthSuccess from './Components/OAuthSuccess';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -60,6 +61,7 @@ function App() {
           <Route path="/signup" element={<Register />} />
           <Route path="/subscription" element={<SubscriptionManagement />} />
           <Route path="/" element={<GuestHome />} />
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
            <Route element={<ProtectedRoute role="Standard" />}>
             <Route path="/dashboard" element={<UserDashboard />} />

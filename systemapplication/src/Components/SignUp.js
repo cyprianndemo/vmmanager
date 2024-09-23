@@ -13,8 +13,16 @@ const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect to /signup page when the component mounts
-    navigate('/signup');
+    // Check for OAuth success
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const role = urlParams.get('role');
+    if (token && role) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      setSnackbar({ open: true, message: 'OAuth registration successful', severity: 'success' });
+      setTimeout(() => navigate('/dashboard'), 2000);
+    }
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -49,8 +57,6 @@ const Register = () => {
         setQrCodeUrl(response.data.qrCodeUrl);
       }
       setSnackbar({ open: true, message: response.data.message, severity: 'success' });
-
-      // Redirect to login page after successful registration
       setTimeout(() => navigate('/login', { state: { email: formData.email } }), 2000);
     } catch (error) {
       setSnackbar({ open: true, message: 'Registration failed: ' + (error.response?.data?.message || error.message), severity: 'error' });
@@ -65,8 +71,7 @@ const Register = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('role', response.data.role);
       setSnackbar({ open: true, message: 'Registration with Google successful', severity: 'success' });
-      // Redirect to login page after successful Google registration
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate('/dashboard'), 2000);
     } catch (error) {
       setSnackbar({ open: true, message: 'Google registration failed: ' + (error.response?.data?.message || error.message), severity: 'error' });
     }

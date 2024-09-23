@@ -20,7 +20,7 @@ const OAuthSuccess = () => {
         } else if (role === 'Standard') {
           navigate('/dashboard');
         } else {
-          navigate('/guest-dashboard');
+          navigate('/dashboard');
         }
       }, 1000);
     } else {
