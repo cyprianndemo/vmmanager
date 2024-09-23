@@ -128,8 +128,8 @@ To deploy the application to a Kubernetes cluster:
    ```
    docker build -t vmmanager ./backend
    docker build -t vmmanager ./systemapplication
-   docker push your-registry/vm-management-backend
-   docker push your-registry/vm-management-systemapplication
+   docker push your-registry/vmmanager-backend
+   docker push your-registry/vmmanager-systemapplication
    ```
 
 2. Apply Kubernetes manifests:
@@ -143,7 +143,7 @@ To deploy the application to a Kubernetes cluster:
 
 ## CI/CD Pipeline
 
-The project uses GitHub Actions for CI/CD. The pipeline is configured in `.github/workflows/main.yml` and includes the following steps:
+The project uses GitHub Actions for CI/CD. The pipeline is configured in `.github/workflows/ci-cd.yaml` and includes the following steps:
 
 1. Run tests
 2. Build Docker images
@@ -183,13 +183,14 @@ vm-management-platform/
 │   ├── tests/
 │   └── package.json
 ├── kubernetes/
-│   ├── backend-deployment.yaml
-│   ├── frontend-deployment.yaml
-│   ├── ingress.yaml
-│   └── services.yaml
+│   ├── node-deployment.yaml
+│   ├── node-service.yaml
+│   ├── react-deployment.yaml
+│   ├── react-service.yaml
+│   └── mongo-deployment.yaml
 ├── .github/
 │   └── workflows/
-│       └── main.yml
+│       └── ci-cd.yaml
 └── README.md
 ```
 
