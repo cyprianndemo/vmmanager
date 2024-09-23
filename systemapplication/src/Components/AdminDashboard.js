@@ -212,7 +212,7 @@ const AdminDashboard = () => {
       }
   
       const token = localStorage.getItem('token');
-      const response = await axios.delete(`http://localhost:5000/api/vms/${selectedVM._id}`, deleteUserData,{
+      const response = await axios.delete(`http://localhost:5000/api/vms/${selectedVM._id}`,{
         headers: { Authorization: `Bearer ${token}` }
       });
   

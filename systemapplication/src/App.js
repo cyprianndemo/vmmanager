@@ -35,7 +35,6 @@ function App() {
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.onload = () => {
-        // Initialize Google Auth after the script is loaded
         window.google.accounts.id.initialize({
           client_id: "160983245449-fggfj9s37bcl9tbar1iemc8ii00c3muv.apps.googleusercontent.com",
           callback: handleCallBackResponse,

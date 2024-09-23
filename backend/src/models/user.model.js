@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, minlength: 6 },
   role: { type: String, enum: ['Admin', 'Standard', 'Guest'], default: 'Guest' },
   isAdmin: { type: Boolean, default: false },
-  googleId: { type: String, unique: true, sparse: true }, // sparse allows multiple nulls
+  googleId: { type: String, unique: true, sparse: true },
   subscription: { 
     plan: { type: mongoose.Schema.Types.ObjectId, ref: 'RatePlan' }, 
     startDate: Date, 

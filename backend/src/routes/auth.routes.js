@@ -80,19 +80,33 @@ router.get('/google',
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login' }),
   (req, res) => {
-    const token = jwt.sign({ _id: req.user._id.toString(), role: req.user.role }, process.env.JWT_SECRET);
+    const token = jwt.sign({ _id: req.user._id.toString(), role: req.user.role, email: req.user.email}, process.env.JWT_SECRET);
     res.redirect(`http://localhost:3000/oauth-success?token=${token}&role=${req.user.role}`);
   }
 );
 
 router.post('/google/callback', async (req, res) => {
-  const { credential } = req.body;
+  const { credential, code } = req.body;
   try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken: credential,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
+    let payload;
+    if (credential) {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } else if (code) {
+      // Handle authorization code
+      const { tokens } = await googleClient.getToken(code);
+      const ticket = await googleClient.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } else {
+      throw new Error('No valid Google authentication data provided');
+    }
+
     const { email, name } = payload;
 
     let user = await User.findOne({ email });
@@ -111,10 +125,10 @@ router.post('/google/callback', async (req, res) => {
     const token = jwt.sign({ _id: user._id, role: user.role, email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token, role: user.role });
   } catch (error) {
-    res.status(400).json({ message: 'Invalid Google token', error: error.message });
+    console.error('Google authentication error:', error);
+    res.status(400).json({ message: 'Invalid Google authentication', error: error.message });
   }
 });
-
 router.get('/github',
   passport.authenticate('github', { scope: ['user:email'] })
 );
@@ -135,7 +149,7 @@ router.get('/github/callback',
           console.error('Login error:', loginErr);
           return res.redirect('http://localhost:3000/login?error=login_failed');
         }
-        const token = jwt.sign({ _id: user._id.toString(), role: user.role }, process.env.JWT_SECRET);
+        const token = jwt.sign({ _id: user._id.toString(), role: user.role, email: user.email }, process.env.JWT_SECRET);
         return res.redirect(`http://localhost:3000/oauth-success?token=${token}&role=${user.role}`);
       });
     })(req, res, next);

@@ -13,7 +13,6 @@ const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for OAuth success
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const role = urlParams.get('role');
@@ -77,9 +76,11 @@ const Register = () => {
     }
   };
 
+
   const handleGitHubLogin = () => {
     window.location.href = 'http://localhost:5000/api/auth/github';
   };
+  console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
 
   return (
     <Container maxWidth="xs">
@@ -104,12 +105,13 @@ const Register = () => {
         </Box>
         {qrCodeUrl && <Box sx={{ mt: 3, textAlign: 'center' }}><Typography variant="h6">Scan QR Code with your authenticator app</Typography><img src={qrCodeUrl} alt="QR Code" /></Box>}
         <Box sx={{ mt: 2 }}>
-          <GoogleLogin
-            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-            onSuccess={handleGoogleSuccess}
-            onError={() => setSnackbar({ open: true, message: 'Google login failed', severity: 'error' })}
-            cookiePolicy={'single_host_origin'}
-          />
+        <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={() => setSnackbar({ open: true, message: 'Google login failed', severity: 'error' })}
+        useOneTap
+        flow="auth-code"
+      />
+      
         </Box>
         <Box sx={{ mt: 2 }}>
           <Button

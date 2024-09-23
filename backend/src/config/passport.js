@@ -3,16 +3,18 @@ const GitHubStrategy = require('passport-github2').Strategy;
 const User = require('../models/user.model');
 
 function configurePassport(passport) {
+console.log({clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET});
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "http://localhost:5000/api/auth/google/callback"
+
   },
   async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ email: profile.emails[0].value });
       if (user) {
-        // If user exists, update role to Standard if it's currently Guest
         if (user.role === 'Guest') {
           user.role = 'Standard';
           await user.save();
@@ -23,7 +25,7 @@ function configurePassport(passport) {
           googleId: profile.id,
           email: profile.emails[0].value,
           username: profile.displayName,
-          role: 'Standard'  // Set role to Standard for new Google users
+          role: 'Standard'  
         });
         await newUser.save();
         return done(null, newUser);
@@ -57,11 +59,10 @@ function configurePassport(passport) {
           username: profile.username,
           email: email,
           githubId: profile.id,
-          role: 'Standard'  // Set role to Standard for new GitHub users
+          role: 'Standard'  
         });
         await user.save();
       } else if (user.role === 'Guest') {
-        // If user exists but is a Guest, update to Standard
         user.role = 'Standard';
         await user.save();
       }

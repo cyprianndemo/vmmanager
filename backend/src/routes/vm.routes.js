@@ -5,6 +5,7 @@ const auth = require('../middleware/auth.middleware');
 const { sendNotification } = require('../services/notification.service');
 const authorize = require('../middleware/authorize.middleware');
 const checkPaymentStatus = require('../middleware/checkPaymentStatus.middleware');
+const AuditLog= require('../models/auditLog.model');
 
 const router = express.Router();
 
@@ -105,7 +106,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(403).send({ error: 'Access denied' });
     }
 
-    await vm.remove();
+    await VM.deleteOne({_id: vm._id});
     console.log(`VM ${vm._id} successfully deleted`);
     res.send({ message: 'VM successfully deleted', vm });
   } catch (error) {
@@ -156,7 +157,6 @@ router.post('/:id/stop', auth, authorize(vmRoles), async (req, res) => {
 });
 
 
-// VM backup
 router.post('/:id/backup', auth, authorize(vmRoles), async (req, res) => {
   try {
     const vm = await VM.findById(req.params.id);
@@ -164,7 +164,6 @@ router.post('/:id/backup', auth, authorize(vmRoles), async (req, res) => {
       return res.status(404).send();
     }
     
-    // Check if the user is an admin or the owner of the VM
     if (req.user.role !== 'Admin' && vm.owner.toString() !== req.user._id.toString()) {
       return res.status(403).send({ error: 'Access denied' });
     }
@@ -178,21 +177,39 @@ router.post('/:id/backup', auth, authorize(vmRoles), async (req, res) => {
   }
 });
 
-// Move VM to another user (admin only)
-router.patch('/:id/move', async (req, res) => {
+router.patch('/:id/move', auth, authorize(['Admin']), async (req, res) => {
   try {
     const { newUserId } = req.body;
-    const vm = await VM.findById(req.params.id);
+    const vm = await VM.findById(req.params.id).populate('owner');
     
     if (!vm) {
       return res.status(404).send({ message: 'VM not found' });
     }
 
+    const newOwner = await User.findById(newUserId);
+    if (!newOwner) {
+      return res.status(404).send({ message: 'New owner not found' });
+    }
+
+    const oldOwner = vm.owner;
+    const oldOwnerId = oldOwner._id;
+
     vm.owner = newUserId;
     await vm.save();
 
+    await sendNotification(oldOwner.email, 'VM Ownership Change', `The VM "${vm.name}" has been moved from your account to ${newOwner.username}.`);
+    await sendNotification(newOwner.email, 'New VM Assigned', `A new VM "${vm.name}" has been assigned to your account.`);
+
+    const auditLog = new AuditLog({
+      action: 'Move VM',
+      details: `Moved VM "${vm.name}" from user ${oldOwner.username} to ${newOwner.username}`,
+      performedBy: req.user._id,  
+    });
+    await auditLog.save();
+
     res.send({ message: 'VM moved successfully', vm });
   } catch (error) {
+    console.error('Error moving VM:', error);
     res.status(500).send({ message: 'Error moving VM', error: error.message });
   }
 });
