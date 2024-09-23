@@ -8,12 +8,13 @@ This project is a web-based virtual machine (VM) management platform with role-b
 2. [Installation](#installation)
 3. [Configuration](#configuration)
 4. [Running the Application](#running-the-application)
-5. [Testing](#testing)
-6. [Deployment](#deployment)
-7. [CI/CD Pipeline](#cicd-pipeline)
-8. [Project Structure](#project-structure)
-9. [Contributing](#contributing)
-10. [License](#license)
+5. [User Authentication](#user-authentication)
+6. [Testing](#testing)
+7. [Deployment](#deployment)
+8. [CI/CD Pipeline](#cicd-pipeline)
+9. [Project Structure](#project-structure)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ## Prerequisites
 
@@ -32,7 +33,7 @@ Before you begin, ensure you have the following installed:
    ```
    git clone https://github.com/cyprianndemo/vmmanager.git
    cd vm-management-platform
-   
+   ```
 
 2. Install backend dependencies:
    ```
@@ -86,6 +87,25 @@ Before you begin, ensure you have the following installed:
 
 4. Open your browser and navigate to `http://localhost:3000` to access the application.
 
+## User Authentication
+
+There are three ways to access the application:
+
+1. Admin Login:
+   - Use the email: `admin123@admin.com`
+   - Use the password: `_admin@123`
+   - Note: It is strongly recommended to change this password after your first login for security reasons.
+
+2. New User Registration:
+   - Navigate to the registration page
+   - Fill in the required information to create a new account
+   - Use your registered email and password to log in
+
+3. GitHub Authentication:
+   - Click on the "Login with GitHub" button
+   - Authorize the application to access your GitHub account
+   - You will be logged in automatically
+
 ## Testing
 
 1. Run backend tests:
@@ -106,15 +126,15 @@ To deploy the application to a Kubernetes cluster:
 
 1. Build and push Docker images:
    ```
-   docker build -t vm-management-backend ./backend
-   docker build -t vm-management-frontend ./systemapplication
+   docker build -t vmmanager ./backend
+   docker build -t vmmanager ./systemapplication
    docker push your-registry/vm-management-backend
    docker push your-registry/vm-management-systemapplication
    ```
 
 2. Apply Kubernetes manifests:
    ```
-   kubectl apply -f k8s/
+   kubectl apply -f kubernetes/
    ```
 
 3. Configure SSL:
@@ -152,7 +172,7 @@ vm-management-platform/
 │   │   └── app.js
 │   ├── tests/
 │   └── package.json
-├── frontend/
+├── systemapplication/
 │   ├── public/
 │   ├── src/
 │   │   ├── components/
@@ -162,7 +182,7 @@ vm-management-platform/
 │   │   └── App.js
 │   ├── tests/
 │   └── package.json
-├── k8s/
+├── kubernetes/
 │   ├── backend-deployment.yaml
 │   ├── frontend-deployment.yaml
 │   ├── ingress.yaml
