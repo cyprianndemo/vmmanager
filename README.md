@@ -162,7 +162,7 @@ To set up the CI/CD pipeline:
 ## Project Structure
 
 ```
-vm-management-platform/
+vmmanager/
 ├── backend/
 │   ├── src/
 │   │   ├── controllers/
