@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Typography, Container, Box } from '@mui/material';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -19,7 +19,7 @@ const Profile = () => {
         setUsername(response.data.username);
         setEmail(response.data.email);
       } catch (err) {
-        setError('Failed to fetch user');
+        setError('Failed to fetch user profile');
       }
     };
     fetchUser();
@@ -29,31 +29,16 @@ const Profile = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.patch('http://localhost:5000/api/users/profile', { username, email }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.patch('http://localhost:5000/api/users/profile', 
+        { username, email, password }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSuccess('Profile updated successfully');
       setError('');
-      // Optionally, refresh user data after update
-      const response = await axios.get('http://localhost:5000/api/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUsername(response.data.username);
-      setEmail(response.data.email);
+      setPassword('');
     } catch (err) {
       setError('Failed to update profile');
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete('http://localhost:5000/api/users/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      localStorage.removeItem('token');
-      navigate('/login'); // Redirect to login after deletion
-    } catch (err) {
-      setError('Failed to delete account');
+      setSuccess('');
     }
   };
 
@@ -63,6 +48,7 @@ const Profile = () => {
         Profile
       </Typography>
       {error && <Typography color="error">{error}</Typography>}
+      {success && <Typography color="success">{success}</Typography>}
       <form onSubmit={handleSubmit}>
         <TextField
           variant="outlined"
@@ -84,25 +70,25 @@ const Profile = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          fullWidth
+          id="password"
+          label="New Password (leave blank to keep current)"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <Button
           type="submit"
           fullWidth
           variant="contained"
           color="primary"
         >
-          Save
+          Save Changes
         </Button>
       </form>
-      <Box mt={2}>
-        <Button
-          fullWidth
-          variant="outlined"
-          color="error"
-          onClick={handleDelete}
-        >
-          Delete Account
-        </Button>
-      </Box>
     </Container>
   );
 };

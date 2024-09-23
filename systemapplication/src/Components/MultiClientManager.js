@@ -9,7 +9,7 @@ import axios from 'axios';
 const MultiClientManager = () => {
   const [subUsers, setSubUsers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [newUser, setNewUser] = useState({ email: '', password: '', name: '' });
+  const [newUser, setNewUser] = useState({ username: '', email: '', password: '' });
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
   useEffect(() => {
@@ -18,27 +18,45 @@ const MultiClientManager = () => {
 
   const fetchSubUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/users/subusers');
+      const token = localStorage.getItem('token'); // Retrieve token from local storage
+      const response = await axios.get('http://localhost:5000/api/users/subusers', {
+        headers: {
+          'Authorization': `Bearer ${token}` // Include token in headers
+        }
+      });
       setSubUsers(response.data);
     } catch (error) {
       console.error('Error fetching sub-users:', error);
       setSnackbar({ open: true, message: 'Error fetching sub-users' });
     }
   };
-
+  
   const handleCreateUser = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/subusers', newUser);
+      const token = localStorage.getItem('token');
+      
+      const userPayload = {
+        username: newUser.username.trim(), 
+        email: newUser.email.trim(),
+        password: newUser.password 
+      };
+  
+      const response = await axios.post('http://localhost:5000/api/users/subusers', userPayload, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
       setOpenDialog(false);
-      setNewUser({ email: '', password: '', name: '' });
+      setNewUser({ username: '', email: '', password: '' });
       setSubUsers([...subUsers, response.data]);
       setSnackbar({ open: true, message: 'Sub-user created successfully' });
     } catch (error) {
       console.error('Error creating sub-user:', error);
-      setSnackbar({ open: true, message: 'Error creating sub-user' });
+      setSnackbar({ open: true, message: 'Error creating sub-user: ' + error.response.data.message });
     }
   };
-
+  
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -57,14 +75,14 @@ const MultiClientManager = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Name</TableCell>
+            <TableCell>Username</TableCell>
             <TableCell>Email</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {subUsers.map((user) => (
             <TableRow key={user._id}>
-              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.username}</TableCell>
               <TableCell>{user.email}</TableCell>
             </TableRow>
           ))}
@@ -77,10 +95,10 @@ const MultiClientManager = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="Name"
+            label="Username"
             fullWidth
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+            value={newUser.username}
+            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
           />
           <TextField
             margin="dense"

@@ -2,13 +2,11 @@ const Subscription = require('../models/subscription.model');
 const VM = require('../models/vm.model');
 const checkVMLimits = async (req, res, next) => {
   try {
-    // Find the user's active subscription
     const subscription = await Subscription.findOne({ user: req.user._id, status: 'Active' });
     if (!subscription) {
       return res.status(403).json({ message: 'No active subscription found' });
     }
 
-    // Count the user's existing VMs
     const vmCount = await VM.countDocuments({ user: req.user._id });
     if (vmCount >= subscription.maxVMs) {
       return res.status(403).json({ message: `VM limit reached: Your plan (${subscription.plan}) allows up to ${subscription.maxVMs} VMs` });

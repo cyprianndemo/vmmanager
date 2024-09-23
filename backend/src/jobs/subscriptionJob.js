@@ -15,12 +15,10 @@ const handleExpiredSubscriptions = async () => {
       subscription.active = false;
       await subscription.save();
   
-      // Here you might want to send an email to the user about their expired subscription
       console.log(`Subscription expired for user: ${subscription.user.email}`);
     }
   };
 
-// Run the job every day at midnight
 cron.schedule('0 0 * * *', handleExpiredSubscriptions);
 
 module.exports = { handleExpiredSubscriptions };

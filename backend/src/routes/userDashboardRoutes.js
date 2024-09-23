@@ -4,7 +4,6 @@ const auth = require('../middleware/auth.middleware');
 const Subscription = require('../models/subscription.model');
 const Payment = require('../models/payment.model');
 const VM = require('../models/vm.model');
-//const Backup = require('../models/backup.model');
 
 router.get('/subscription', auth, async (req, res) => {
   try {

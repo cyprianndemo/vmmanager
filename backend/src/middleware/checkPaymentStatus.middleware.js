@@ -1,8 +1,6 @@
-// middleware/checkPaymentStatus.middleware.js
 const checkPaymentStatus = async (req, res, next) => {
     try {
-      // Mock logic for checking payment status
-      const paymentStatus = true; // Replace with actual payment check logic
+      const paymentStatus = true; 
   
       if (!paymentStatus) {
         return res.status(403).json({ message: 'Payment required before creating VM.' });

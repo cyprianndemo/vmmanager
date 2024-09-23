@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Button, TextField, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Container, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Button, TextField, FormControl, InputLabel, Select, MenuItem, FormControlLabel, Checkbox, Container, Typography, Box, Snackbar, Alert, CircularProgress, Link } from '@mui/material';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
@@ -11,6 +11,18 @@ const Register = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const role = urlParams.get('role');
+    if (token && role) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      setSnackbar({ open: true, message: 'OAuth registration successful', severity: 'success' });
+      setTimeout(() => navigate('/dashboard'), 2000);
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -44,7 +56,6 @@ const Register = () => {
         setQrCodeUrl(response.data.qrCodeUrl);
       }
       setSnackbar({ open: true, message: response.data.message, severity: 'success' });
-
       setTimeout(() => navigate('/login', { state: { email: formData.email } }), 2000);
     } catch (error) {
       setSnackbar({ open: true, message: 'Registration failed: ' + (error.response?.data?.message || error.message), severity: 'error' });
@@ -65,16 +76,11 @@ const Register = () => {
     }
   };
 
+
   const handleGitHubLogin = () => {
     window.location.href = 'http://localhost:5000/api/auth/github';
   };
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/dashboard');
-    }
-  }, [navigate]);
+  console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
 
   return (
     <Container maxWidth="xs">
@@ -99,12 +105,13 @@ const Register = () => {
         </Box>
         {qrCodeUrl && <Box sx={{ mt: 3, textAlign: 'center' }}><Typography variant="h6">Scan QR Code with your authenticator app</Typography><img src={qrCodeUrl} alt="QR Code" /></Box>}
         <Box sx={{ mt: 2 }}>
-          <GoogleLogin
-            clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
-            onSuccess={handleGoogleSuccess}
-            onError={() => setSnackbar({ open: true, message: 'Google login failed', severity: 'error' })}
-            cookiePolicy={'single_host_origin'}
-          />
+        <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={() => setSnackbar({ open: true, message: 'Google login failed', severity: 'error' })}
+        useOneTap
+        flow="auth-code"
+      />
+      
         </Box>
         <Box sx={{ mt: 2 }}>
           <Button
@@ -116,6 +123,14 @@ const Register = () => {
           >
             Register with GitHub
           </Button>
+        </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Typography variant="body2">
+            Already have an account?{' '}
+            <Link component={RouterLink} to="/login" variant="body2">
+              Log in here
+            </Link>
+          </Typography>
         </Box>
       </Box>
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>

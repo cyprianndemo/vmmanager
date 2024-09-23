@@ -8,7 +8,6 @@ const auth = require('../middleware/auth.middleware');
 const { generateQRCode, verify2FA } = require('../utils/2FA');
 const adminAuth = require('../middleware/adminAuth.middleware');
 
-// Registration Route
 router.post('/register', [
   check('username').not().isEmpty().withMessage('Username is required'),
   check('email').isEmail().withMessage('Email is invalid'),
@@ -37,7 +36,6 @@ router.post('/register', [
   }
 });
 
-// Login Route
 router.post('/login', [
   check('email').isEmail().withMessage('Email is invalid'),
   check('password').exists().withMessage('Password is required'),
@@ -69,21 +67,51 @@ router.post('/login', [
   }
 });
 
-// Profile Route
-router.get('/profile', async (req, res) => {
+
+router.get('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.patch('/profile', auth, [
+  check('username').optional().not().isEmpty().withMessage('Username cannot be empty'),
+  check('email').optional().isEmail().withMessage('Email is invalid'),
+  check('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { username, email, password } = req.body;
+
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(user);
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+
+    await user.save();
+    res.json({ message: 'Profile updated successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Get All Users (Admin only)
 
 router.get('/', async (req, res) => {
   try {
@@ -98,30 +126,36 @@ router.get('/', async (req, res) => {
 });
 router.get('/subusers', async (req, res) => {
   try {
-    const users = await User.find();
-    console.log(users);
-    res.json(users);
+    const subusers = await User.find({ parentClient: req.user.id });
+    res.json(subusers);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching users', error: error.message });
   }
 });
 
-// Create a new sub-user
-router.post('/subuser', async (req, res) => {
+router.post('/subusers', auth, async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Please provide username, email, and password.' });
+  }
+
   try {
-    const { email, password, name } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
+      username,
       email,
-      password,
-      name,
-      parentClient: req.user._id
+      password: hashedPassword,
+      parentClient: req.user.id 
     });
+
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 });
+
 
 
 module.exports = router;

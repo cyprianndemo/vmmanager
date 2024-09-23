@@ -19,6 +19,10 @@ import MultiClientManager from './Components/MultiClientManager';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { useEffect } from 'react';
 import GuestHome from './Components/GuestHome';
+import GuestDashboard from './Components/GuestDashboard';
+import Profile from './Components/Profile';
+import Appbar from './Components/Appbar';
+import OAuthSuccess from './Components/OAuthSuccess';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -31,7 +35,6 @@ function App() {
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
       script.onload = () => {
-        // Initialize Google Auth after the script is loaded
         window.google.accounts.id.initialize({
           client_id: "160983245449-fggfj9s37bcl9tbar1iemc8ii00c3muv.apps.googleusercontent.com",
           callback: handleCallBackResponse,
@@ -46,6 +49,8 @@ function App() {
   return (
     <GoogleOAuthProvider clientId="160983245449-fggfj9s37bcl9tbar1iemc8ii00c3muv.apps.googleusercontent.com">
       <BrowserRouter>
+      <Appbar />
+
         <Routes>
        
           <Route path="/home" element={<HomePage />} />
@@ -55,13 +60,20 @@ function App() {
           <Route path="/signup" element={<Register />} />
           <Route path="/subscription" element={<SubscriptionManagement />} />
           <Route path="/" element={<GuestHome />} />
-
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
 
            <Route element={<ProtectedRoute role="Standard" />}>
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/vm" element={<VMManagement />} />
             <Route path="/subscription" element={<SubscriptionManagement />} />
             <Route path="/client" element={<MultiClientManager />} />
+            <Route path="/profile" element={<Profile />} />
+
+          </Route>
+
+          <Route element={<ProtectedRoute role="Guest" />}>
+            <Route path="/guest-dashboard" element={<GuestDashboard />} />
+            
           </Route>
 
         
