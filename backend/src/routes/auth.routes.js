@@ -96,7 +96,6 @@ router.post('/google/callback', async (req, res) => {
       });
       payload = ticket.getPayload();
     } else if (code) {
-      // Handle authorization code
       const { tokens } = await googleClient.getToken(code);
       const ticket = await googleClient.verifyIdToken({
         idToken: tokens.id_token,
@@ -155,6 +154,26 @@ router.get('/github/callback',
     })(req, res, next);
   }
 );
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
 
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while processing your request' });
+  }
+});
 
 module.exports = router;

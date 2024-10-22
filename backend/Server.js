@@ -6,10 +6,8 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 
 
-// Import the configurePassport function
 const { configurePassport } = require('./src/config/passport');
 
-// Import route files
 const adminRoutes = require('./src/routes/admin.routes');
 const activitiesRouter = require('./src/routes/activities');
 const userRoutes = require('./src/routes/user.routes');
@@ -40,7 +38,6 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
-// Configure session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-session-secret',
   resave: false,

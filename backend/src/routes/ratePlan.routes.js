@@ -7,28 +7,28 @@ const adminCheck = require('../middleware/adminAuth.middleware');
 const seedRatePlans = [
   {
     name: 'Bronze',
-    price: 9.99,
+    price: 100,
     maxVMs: 1,
     maxBackups: 3,
     description: 'Basic plan for small projects'
   },
   {
     name: 'Silver',
-    price: 19.99,
+    price: 2000,
     maxVMs: 3,
     maxBackups: 5,
     description: 'Standard plan for growing businesses'
   },
   {
     name: 'Gold',
-    price: 49.99,
+    price: 5000,
     maxVMs: 10,
     maxBackups: 10,
     description: 'Premium plan for large enterprises'
   },
   {
     name: 'Platinum',
-    price: 99.99,
+    price: 1000,
     maxVMs: 20,
     maxBackups: 20,
     description: 'Ultimate plan for maximum performance'
