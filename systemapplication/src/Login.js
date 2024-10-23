@@ -107,6 +107,11 @@ const Login = () => {
             </Link>
           </Typography>
         </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Link component={RouterLink} to="/forgot-password" variant="body2">
+            Forgot Password?
+          </Link>
+        </Box>
       </Box>
       <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>

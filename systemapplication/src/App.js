@@ -23,6 +23,8 @@ import GuestDashboard from './Components/GuestDashboard';
 import Profile from './Components/Profile';
 import Appbar from './Components/Appbar';
 import OAuthSuccess from './Components/OAuthSuccess';
+import ForgetPassword from './Components/ForgetPassword';
+import AdminMultiUsers from './Components/AdminMultiUsers';
 
 function App() {
   function handleCallBackResponse(response) {
@@ -57,6 +59,7 @@ function App() {
           <Route path="/google" element={<GoogleAuth />} />
           <Route path="/github" element={<GitHubAuth />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgetPassword />} />
           <Route path="/signup" element={<Register />} />
           <Route path="/subscription" element={<SubscriptionManagement />} />
           <Route path="/" element={<GuestHome />} />
@@ -81,6 +84,8 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/payments" element={<PaymentSystem />} />
             <Route path="/admin/panel" element={<AdminPanel />} />
+            <Route path="/sub-admin" element={<AdminMultiUsers />} />
+
           </Route>
 
           <Route path="/payment" element={<PaymentPage />} />

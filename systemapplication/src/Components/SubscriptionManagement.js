@@ -7,6 +7,11 @@ import {
 } from '@mui/material';
 import { Alert } from '@mui/material';
 
+const PaymentMethods = {
+  MPESA: 'M-Pesa',
+  CREDIT_CARD: 'Credit Card'
+};
+
 const SubscriptionManagement = () => {
   const [plans, setPlans] = useState([]);
   const [paymentHistory, setPaymentHistory] = useState([]);
@@ -23,7 +28,7 @@ const SubscriptionManagement = () => {
   const [backupSize, setBackupSize] = useState('');
   const [backupPrice, setBackupPrice] = useState(0);
   const [paymentDetails, setPaymentDetails] = useState({
-    paymentMethod: '',
+    paymentMethod: PaymentMethods.MPESA, 
     cardNumber: '',
     expiryDate: '',
     cvv: '',
@@ -106,26 +111,27 @@ const SubscriptionManagement = () => {
 
   const handlePaymentSubmit = async () => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/subscriptions/subscribe', 
-        { 
-          planId: selectedPlan._id,
-          paymentMethod: paymentDetails.paymentMethod,
-          cardNumber: paymentDetails.cardNumber,
-          expiryDate: paymentDetails.expiryDate,
-          cvv: paymentDetails.cvv,
-          phoneNumber: paymentDetails.phoneNumber,
-          testMode: testMode
-        },
-        { headers: { 'Authorization': `Bearer ${token}` } }
-      );
-      setSnackbar({ open: true, message: 'Subscription successful', severity: 'success' });
-      fetchCurrentSubscription();
-      setDialogOpen(false);
+        const token = localStorage.getItem('token');
+        const response = await axios.post('http://localhost:5000/api/payments/subscribe', 
+            { 
+                planId: selectedPlan._id,
+                paymentMethod: paymentDetails.paymentMethod,
+                cardNumber: paymentDetails.paymentMethod === PaymentMethods.CREDIT_CARD ? paymentDetails.cardNumber : undefined,
+                expiryDate: paymentDetails.paymentMethod === PaymentMethods.CREDIT_CARD ? paymentDetails.expiryDate : undefined,
+                cvv: paymentDetails.paymentMethod === PaymentMethods.CREDIT_CARD ? paymentDetails.cvv : undefined,
+                phoneNumber: paymentDetails.paymentMethod === PaymentMethods.MPESA ? paymentDetails.phoneNumber : undefined,
+                testMode: testMode
+            },
+            { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        setSnackbar({ open: true, message: response.data.message, severity: 'success' });
+        fetchCurrentSubscription();
+        setDialogOpen(false);
     } catch (error) {
-      setSnackbar({ open: true, message: 'Subscription failed', severity: 'error' });
+        setSnackbar({ open: true, message: 'Subscription failed', severity: 'error' });
     }
-  };
+};
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -242,136 +248,118 @@ const SubscriptionManagement = () => {
           <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
             Payment History
           </Typography>
-          {paymentHistory.length > 0 ? (
-            <Grid container spacing={3}>
-              {paymentHistory.map((payment, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6">Plan: {payment.ratePlan}</Typography>
-                      <Typography>Amount: ${payment.amount}</Typography>
-                      <Typography>Status: {payment.status}</Typography>
-                      <Typography>Description: {payment.description}</Typography>
-                      <Typography>Date: {new Date(payment.createdAt).toLocaleString()}</Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Typography>No payment history found.</Typography>
-          )}
+          <Grid container spacing={3}>
+            {paymentHistory.map((payment) => (
+              <Grid item xs={12} key={payment._id}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">Payment ID: {payment._id}</Typography>
+                    <Typography>Date: {new Date(payment.date).toLocaleDateString()}</Typography>
+                    <Typography>Amount: ${payment.amount}</Typography>
+                    <Typography>Method: {payment.method}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {/* Payment Dialog */}
+          <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <DialogTitle>Payment Details</DialogTitle>
+            <DialogContent>
+              <FormControl fullWidth>
+                <InputLabel>Payment Method</InputLabel>
+                <Select
+                  value={paymentDetails.paymentMethod}
+                  onChange={(e) => {
+                    setPaymentDetails((prev) => ({ ...prev, paymentMethod: e.target.value }));
+                  }}
+                >
+                  <MenuItem value={PaymentMethods.MPESA}>M-Pesa</MenuItem>
+                  <MenuItem value={PaymentMethods.CREDIT_CARD}>Credit Card</MenuItem>
+                </Select>
+              </FormControl>
+
+              {paymentDetails.paymentMethod === PaymentMethods.CREDIT_CARD && (
+                <>
+                  <TextField
+                    label="Card Number"
+                    name="cardNumber"
+                    value={paymentDetails.cardNumber}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Expiry Date (MM/YY)"
+                    name="expiryDate"
+                    value={paymentDetails.expiryDate}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="CVV"
+                    name="cvv"
+                    value={paymentDetails.cvv}
+                    onChange={handleInputChange}
+                    fullWidth
+                    margin="normal"
+                  />
+                </>
+              )}
+
+              {paymentDetails.paymentMethod === PaymentMethods.MPESA && (
+                <TextField
+                  label="Phone Number"
+                  name="phoneNumber"
+                  value={paymentDetails.phoneNumber}
+                  onChange={handleInputChange}
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+
+              <FormControlLabel
+                control={<Checkbox checked={testMode} onChange={(e) => setTestMode(e.target.checked)} />}
+                label="Test Mode"
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handlePaymentSubmit}>Submit Payment</Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog open={backupDialogOpen} onClose={() => setBackupDialogOpen(false)}>
+            <DialogTitle>Backup Size</DialogTitle>
+            <DialogContent>
+              <TextField
+                label="Backup Size (in GB)"
+                type="number"
+                value={backupSize}
+                onChange={handleBackupSizeChange}
+                fullWidth
+              />
+              <Typography>Estimated Price: ${backupPrice}</Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setBackupDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleBackupSubmit}>Create Backup</Button>
+            </DialogActions>
+          </Dialog>
+
+          <Snackbar
+            open={snackbar.open}
+            autoHideDuration={6000}
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+          >
+            <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
+              {snackbar.message}
+            </Alert>
+          </Snackbar>
         </>
       )}
-
-      {/* Subscription Dialog */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Subscribe to {selectedPlan?.name}</DialogTitle>
-        <DialogContent>
-          <TextField
-            margin="dense"
-            name="paymentMethod"
-            label="Payment Method"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDetails.paymentMethod}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            name="cardNumber"
-            label="Card Number"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDetails.cardNumber}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            name="expiryDate"
-            label="Expiry Date"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDetails.expiryDate}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            name="cvv"
-            label="CVV"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDetails.cvv}
-            onChange={handleInputChange}
-          />
-          <TextField
-            margin="dense"
-            name="phoneNumber"
-            label="Phone Number"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDetails.phoneNumber}
-            onChange={handleInputChange}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={testMode}
-                onChange={() => setTestMode(!testMode)}
-                name="testMode"
-              />
-            }
-            label="Test Mode (Simulate Payment)"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handlePaymentSubmit}>Subscribe</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Backup Dialog */}
-      <Dialog open={backupDialogOpen} onClose={() => setBackupDialogOpen(false)}>
-        <DialogTitle>Create Backup for {selectedVM?.name}</DialogTitle>
-        <DialogContent>
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="backup-size-label">Backup Size (GB)</InputLabel>
-            <Select
-              labelId="backup-size-label"
-              value={backupSize}
-              onChange={handleBackupSizeChange}
-              label="Backup Size (GB)"
-            >
-              <MenuItem value={10}>10 GB</MenuItem>
-              <MenuItem value={20}>20 GB</MenuItem>
-              <MenuItem value={50}>50 GB</MenuItem>
-              <MenuItem value={100}>100 GB</MenuItem>
-            </Select>
-          </FormControl>
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            Estimated Price: ${backupPrice.toFixed(2)}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setBackupDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleBackupSubmit}>Create Backup</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-      >
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

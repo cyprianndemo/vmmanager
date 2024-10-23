@@ -32,10 +32,10 @@ const guestFeatures = [
 ];
 
 const plans = [
-  { id: 1, name: 'Bronze', maxVMs: 1, maxBackups: 3, price: 9.99 },
-  { id: 2, name: 'Silver', maxVMs: 3, maxBackups: 5, price: 19.99 },
-  { id: 3, name: 'Gold', maxVMs: 5, maxBackups: 10, price: 49.99 },
-  { id: 4, name: 'Platinum', maxVMs: 10, maxBackups: 20, price: 99.99 },
+  { id: 1, name: 'Bronze', maxVMs: 1, maxBackups: 3, price: 100 },
+  { id: 2, name: 'Silver', maxVMs: 3, maxBackups: 5, price: 2000 },
+  { id: 3, name: 'Gold', maxVMs: 5, maxBackups: 10, price: 5000 },
+  { id: 4, name: 'Platinum', maxVMs: 10, maxBackups: 20, price: 10000 },
 ];
 
 const GuestHome = () => {
@@ -92,20 +92,20 @@ const GuestHome = () => {
                     {plan.name}
                   </Typography>
                   <Typography variant="h4" component="p" align="center" color="primary" sx={{ mb: 2 }}>
-                    ${plan.price.toFixed(2)}
+                    KES{plan.price.toFixed(2)}
                   </Typography>
                   <List dense>
                     <ListItem>
                       <ListItemIcon>
                         <CheckIcon color="primary" />
                       </ListItemIcon>
-                      <ListItemText primary={`Up to ${plan.maxVMs} VMs`} />
+                      <ListItemText primary={`Up to KES{plan.maxVMs} VMs`} />
                     </ListItem>
                     <ListItem>
                       <ListItemIcon>
                         <CheckIcon color="primary" />
                       </ListItemIcon>
-                      <ListItemText primary={`${plan.maxBackups} backups included`} />
+                      <ListItemText primary={`KES{plan.maxBackups} backups included`} />
                     </ListItem>
                   </List>
                 </CardContent>

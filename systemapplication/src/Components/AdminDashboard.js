@@ -280,6 +280,8 @@ const AdminDashboard = () => {
             Admin Dashboard
           </Typography>
           <Button color="inherit" onClick={() => navigate('/logout')}>Logout</Button>
+          <Button color="inherit" onClick={() => navigate('/sub-admin')}>Multi-Admin</Button>
+
         </Toolbar>
       </AppBar>
 
@@ -421,9 +423,9 @@ const AdminDashboard = () => {
                 {activities.map((activity) => (
                   <ListItem key={activity._id}>
                     <ListItemText
-                      primary={`${activity.action} by ${activity.username}`}
-                      secondary={`${activity.details} - ${new Date(activity.timestamp).toLocaleString()}`}
-                    />
+                primary={`${activity.username} - ${activity.action}`}
+                secondary={`${activity.details} - ${new Date(activity.timestamp).toLocaleString()}`}
+              />
                   </ListItem>
                 ))}
               </List>
