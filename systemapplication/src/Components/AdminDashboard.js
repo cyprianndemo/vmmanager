@@ -27,6 +27,13 @@ import {
   Tabs,
   Tab,
 } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Switch from '@mui/material/Switch';
+import { yellow } from '@mui/material/colors';
+import LogoutIcon from '@mui/icons-material/Logout';
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
@@ -42,6 +49,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
   const [users, setUsers] = useState([]);
   const [vms, setVms] = useState([]);
   const [activities, setActivities] = useState([]);
@@ -94,6 +102,23 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+  const handleThemeChange = () => {
+    setDarkMode(!darkMode);
+  };
+
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: {
+        main: yellow[500], 
+      },
+    },
+    typography: {
+      fontFamily: 'Times New Roman',
+      fontSize: 20,
+      fontWeightBold: 700,
+    },
+  });
 
   const handleOpenDialog = (type, item = null) => {
     setDialogType(type);
@@ -243,6 +268,10 @@ const AdminDashboard = () => {
       console.error('Error moving VM:', err);
     }
   };
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   const handleVMAction = async (vmId, action) => {
     try {
@@ -273,14 +302,26 @@ const AdminDashboard = () => {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+    <CssBaseline /> 
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Admin Dashboard
           </Typography>
-          <Button color="inherit" onClick={() => navigate('/logout')}>Logout</Button>
-          <Button color="inherit" onClick={() => navigate('/sub-admin')}>Multi-Admin</Button>
+          <IconButton
+              color="inherit"
+              onClick={handleThemeChange}
+              aria-label="toggle dark/light mode"
+            >
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <Switch checked={darkMode} onChange={handleThemeChange} />
+            <IconButton color="inherit" onClick={handleLogout}>
+            <LogoutIcon />
+          </IconButton>
+            <Button color="inherit" onClick={() => navigate('/sub-admin')}>Multi-Admin</Button>
 
         </Toolbar>
       </AppBar>
@@ -619,6 +660,8 @@ const AdminDashboard = () => {
         </Alert>
       </Snackbar>
     </Box>
+    </ThemeProvider>
+
   );
 };
 

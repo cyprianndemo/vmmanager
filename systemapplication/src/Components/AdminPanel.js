@@ -15,11 +15,19 @@ import {
   Snackbar,
   Alert
 } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Switch from '@mui/material/Switch';
+import { yellow } from '@mui/material/colors';
+import IconButton from '@mui/material/IconButton';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = 'http://localhost:5000/api/users'; 
 
 const AdminPanel = () => {
+  const [darkMode, setDarkMode] = useState(false);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
@@ -106,6 +114,23 @@ const AdminPanel = () => {
     }
     setSnackbar({ ...snackbar, open: false });
   };
+  const handleThemeChange = () => {
+    setDarkMode(!darkMode);
+  };
+
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: {
+        main: yellow[500], 
+      },
+    },
+    typography: {
+      fontFamily: 'Times New Roman',
+      fontSize: 15,
+      fontWeightBold: 700,
+    },
+  });
 
   if (loading) {
     return (
@@ -116,6 +141,8 @@ const AdminPanel = () => {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+    <CssBaseline /> 
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         Admin Panel
@@ -126,7 +153,16 @@ const AdminPanel = () => {
         >
           Return
         </Button>
+        <IconButton
+              color="inherit"
+              onClick={handleThemeChange}
+              aria-label="toggle dark/light mode"
+            >
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <Switch checked={darkMode} onChange={handleThemeChange} />
       </Typography>
+     
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -177,6 +213,8 @@ const AdminPanel = () => {
         </Alert>
       </Snackbar>
     </Container>
+    </ThemeProvider>
+
   );
 };
 

@@ -9,10 +9,17 @@ import { useNavigate } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import axios from 'axios';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Switch from '@mui/material/Switch';
+import { yellow } from '@mui/material/colors';
 import SubscriptionManagement from './SubscriptionManagement';
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [payments, setPayments] = useState([]);
   const [vms, setVms] = useState([]);
@@ -60,10 +67,27 @@ const UserDashboard = () => {
   const handleProfileClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+  
+  const handleThemeChange = () => {
+    setDarkMode(!darkMode);
+  };
 
   const handleProfileClose = () => {
     setAnchorEl(null);
   };
+  const theme = createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: {
+        main: yellow[500], 
+      },
+    },
+    typography: {
+      fontFamily: 'Times New Roman',
+      fontSize: 20,
+      fontWeightBold: 700,
+    },
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -115,7 +139,7 @@ const UserDashboard = () => {
     fetchData();
   };
 
-  const backupPrice = diskSize * 0.5; // Assuming $0.5 per GB
+  const backupPrice = diskSize * 0.5; 
 
   if (loading) {
     return (
@@ -126,12 +150,22 @@ const UserDashboard = () => {
   }
 
   return (
+    <ThemeProvider theme={theme}>
+    <CssBaseline /> 
     <>
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             User Dashboard
           </Typography>
+          <IconButton
+              color="inherit"
+              onClick={handleThemeChange}
+              aria-label="toggle dark/light mode"
+            >
+              {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
+            <Switch checked={darkMode} onChange={handleThemeChange} />
           <Button color="inherit" onClick={() => navigate('/')}>Home</Button>
           <Button color="inherit" onClick={() => navigate('/client')}>Multi-Client</Button>
 
@@ -147,14 +181,12 @@ const UserDashboard = () => {
       <Container>
                
         <Grid container spacing={3}>
-          {/* Subscription Management */}
           <Grid item xs={12}>
             <Paper elevation={3} sx={{ p: 2 }}>
               <SubscriptionManagement onSubscriptionChange={handleSubscriptionChange} subscription={subscription} />
             </Paper>
           </Grid>
 
-          {/* Display current subscription details */}
           {subscription && (
             <Grid item xs={12}>
               <Paper elevation={3} sx={{ p: 2 }}>
@@ -171,7 +203,6 @@ const UserDashboard = () => {
           
         </Grid>
 
-        {/* Snackbar Notifications */}
         <Snackbar
           open={snackbar.open}
           autoHideDuration={6000}
@@ -182,7 +213,6 @@ const UserDashboard = () => {
           </Alert>
         </Snackbar>
 
-        {/* Profile Menu */}
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
@@ -192,7 +222,6 @@ const UserDashboard = () => {
           <MenuItem onClick={() => navigate('/settings')}>Settings</MenuItem>
         </Menu>
 
-        {/* Edit VM Dialog */}
         <Dialog open={openDialog} onClose={handleCloseDialog}>
           <DialogTitle>Edit VM</DialogTitle>
           <DialogContent>
@@ -225,6 +254,8 @@ const UserDashboard = () => {
         </Dialog>
       </Container>
     </>
+    </ThemeProvider>
+
   );
 };
 

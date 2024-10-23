@@ -7,6 +7,7 @@ const Subscription = require('../models/subscription.model');
 const { processPayment } = require('../services/paymentService');
 const PaymentMethodEnum = require('../models/paymentMethodEnum');
 const { initiateSTKPush } = require('../services/mpesaService');
+const fetch = require('node-fetch');
 
 const generateMockPayments = (userId) => {
   return [
@@ -31,6 +32,16 @@ const generateMockPayments = (userId) => {
       createdAt: new Date()
     }
   ];
+};
+const getUsdToKshRate = async () => {
+  try {
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await response.json();
+    return data.rates.KES; 
+  } catch (error) {
+    console.error('Error fetching USD to KSH conversion rate:', error);
+    throw new Error('Failed to get currency conversion rate');
+  }
 };
 
 const formatMPesaAmount = (amount) => {
@@ -65,8 +76,13 @@ router.post('/subscribe', auth, async (req, res) => {
       return res.status(400).json({ message: 'Invalid rate plan selected' });
     }
 
-    const originalAmount = ratePlan.price;
-    const mpesaAmount = formatMPesaAmount(originalAmount);
+    const originalAmountUsd = ratePlan.price; 
+
+    const usdToKshRate = await getUsdToKshRate();
+
+    const amountInKsh = originalAmountUsd * usdToKshRate;
+
+    const mpesaAmount = formatMPesaAmount(amountInKsh);
 
     const paymentMethod = PaymentMethodEnum.MPESA;  
 
@@ -93,7 +109,7 @@ router.post('/subscribe', auth, async (req, res) => {
 
           const newPayment = new Payment({
             user: req.user._id,
-            amount: originalAmount,
+            amount: originalAmountUsd, // Keep original amount in USD for records
             ratePlan: ratePlan.name,
             status: 'Pending',
             description: `Subscription: ${ratePlan.name}`,
@@ -107,7 +123,7 @@ router.post('/subscribe', auth, async (req, res) => {
             user: req.user._id,
             plan: ratePlan._id, 
             planName: ratePlan.name, 
-            price: originalAmount,
+            price: originalAmountUsd,
             maxVMs: ratePlan.maxVMs,
             maxBackups: ratePlan.maxBackups,
             nextBillingDate,
@@ -141,5 +157,6 @@ router.post('/subscribe', auth, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

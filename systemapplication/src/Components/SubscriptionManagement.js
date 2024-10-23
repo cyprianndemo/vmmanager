@@ -263,7 +263,6 @@ const SubscriptionManagement = () => {
             ))}
           </Grid>
 
-          {/* Payment Dialog */}
           <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
             <DialogTitle>Payment Details</DialogTitle>
             <DialogContent>
